@@ -34,3 +34,5 @@ tqdm
 rasterio
 clip @ git+https://github.com/openai/CLIP.git
 image-reward
+runpod
+requests

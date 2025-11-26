@@ -1,0 +1,89 @@
+# Chat2SVG Stage 1 - Template Generation Requirements
+# Este archivo lista las dependencias necesarias SOLO para el Stage 1
+# Para el proyecto completo, usa ../requirements.txt
+
+# ==============================================================================
+# Core Dependencies
+# ==============================================================================
+
+# Python 3.10+ required
+python-dotenv>=1.0.0          # Cargar variables de entorno desde .env
+pyyaml>=6.0                   # Leer archivos de configuración YAML
+requests>=2.31.0              # HTTP requests para APIs (Claude/Wildcard)
+
+# ==============================================================================
+# Image Processing
+# ==============================================================================
+
+pillow>=10.0.0                # PIL - Procesamiento de imágenes
+cairosvg>=2.7.0               # Convertir SVG a PNG (requiere Cairo en sistema)
+numpy>=1.24.0                 # Arrays numéricos (requerido por PIL y modelos)
+
+# ==============================================================================
+# Machine Learning - PyTorch
+# ==============================================================================
+
+torch>=2.1.0                  # PyTorch - Framework de ML
+torchvision>=0.16.0           # Utilidades de visión para PyTorch
+
+# ==============================================================================
+# AI Models
+# ==============================================================================
+
+# CLIP - OpenAI's Contrastive Language-Image Pre-training
+# Usado para ranking visual-texto
+clip @ git+https://github.com/openai/CLIP.git
+
+# ImageReward - Human preference reward model
+# Usado para evaluar calidad de imágenes generadas
+image-reward>=1.5             # ~2.1 GB model download
+
+# ==============================================================================
+# RunPod Integration
+# ==============================================================================
+
+runpod>=1.6.0                 # RunPod SDK para serverless deployment
+
+# ==============================================================================
+# Optional but Recommended
+# ==============================================================================
+
+# Para mejor performance y compatibilidad
+beautifulsoup4>=4.12.0        # Parsing HTML/XML (usado por algunas deps)
+shapely>=2.0.0                # Operaciones geométricas en SVG
+
+# ==============================================================================
+# Development & Testing
+# ==============================================================================
+
+# Descomenta estas líneas para desarrollo local
+# pytest>=7.4.0               # Framework de testing
+# black>=23.0.0               # Code formatter
+# flake8>=6.0.0               # Linter
+# mypy>=1.5.0                 # Type checker
+
+# ==============================================================================
+# NOTAS IMPORTANTES
+# ==============================================================================
+
+# 1. CAIRO REQUERIDO EN SISTEMA:
+#    - Ubuntu/Debian: sudo apt-get install libcairo2-dev pkg-config python3-dev
+#    - macOS: brew install cairo pkg-config
+#    - Windows: conda install -c conda-forge cairo
+#
+# 2. MODELOS SE DESCARGAN AUTOMATICAMENTE:
+#    - CLIP ViT-B/32: ~338 MB en ~/.cache/clip/
+#    - ImageReward: ~2.1 GB en ~/.cache/ImageReward/
+#
+# 3. GPU OPCIONAL PERO RECOMENDADA:
+#    - Con GPU: ~10x más rápido
+#    - CPU funciona pero es lento
+#
+# 4. VARIABLES DE ENTORNO REQUERIDAS:
+#    - BACKEND=Claude o Wildcard
+#    - ANTHROPIC_API_KEY o OPENAI_API_KEY
+#
+# 5. COMPATIBILIDAD:
+#    - Python 3.10, 3.11 (recomendado)
+#    - CUDA 11.8+ para GPU
+#    - macOS, Linux, Windows (WSL recomendado)

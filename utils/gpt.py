@@ -1,4 +1,3 @@
-
 import os
 import yaml
 import base64
@@ -12,7 +11,11 @@ from utils.util import read
 load_dotenv(dotenv_path=os.path.join("..", ".env"))
 api_key = os.getenv("OPENAI_API_KEY")
 backend = os.getenv("BACKEND")
-assert backend in ["Claude", "Wildcard"], f"Invalid backend: {backend}. Choose either 'Claude' or 'Wildcard'."
+assert backend in [
+    "Claude",
+    "Wildcard",
+], f"Invalid backend: {backend}. Choose either 'Claude' or 'Wildcard'."
+
 
 class Session:
     def __init__(self, model, prompts_file) -> None:
@@ -24,8 +27,14 @@ class Session:
         # Load the predefined prompts for the LLM
         with open(f"../{prompts_file}.yaml") as file:
             self.predefined_prompts: dict[str, str] = yaml.safe_load(file)
-    
-    def send(self, task: str, prompt_info: dict[str, str] | None = None, images: list[str] = [], file_path = None) -> str:
+
+    def send(
+        self,
+        task: str,
+        prompt_info: dict[str, str] | None = None,
+        images: list[str] = [],
+        file_path=None,
+    ) -> str:
         print(f"$ --- Sending task: {task}")
         self.past_tasks.append(task)
         prompt = self._make_prompt(task, prompt_info)
@@ -54,30 +63,38 @@ class Session:
                 prompt = prompt.replace(f"<{key.upper()}>", prompt_info[key])
 
         return prompt
-    
-    def _send(self, prompt: str, images: list[str]=[], file_path=None) -> str:
+
+    def _send(self, prompt: str, images: list[str] = [], file_path=None) -> str:
         payload = self._create_payload(prompt, images=images)
         if not os.path.exists(file_path):
             # ANTROPICS
             if backend == "Claude":
                 headers = {
                     "Content-Type": "application/json",
-                    "x-api-key": api_key, 
-                    "anthropic-version": "2023-06-01" # TODO use if antropics
+                    "x-api-key": api_key,
+                    "anthropic-version": "2023-06-01",  # TODO use if antropics
                 }
-                response = requests.post("https://api.anthropic.com/v1/messages", headers=headers, json=payload)  # Anthropic
+                response = requests.post(
+                    "https://api.anthropic.com/v1/messages",
+                    headers=headers,
+                    json=payload,
+                )  # Anthropic
             # WILDCARD
-            elif backend == "Wildcard":   
+            elif backend == "Wildcard":
                 headers = {
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer {api_key}"
+                    "Authorization": f"Bearer {api_key}",
                 }
-                response = requests.post("https://api.gptsapi.net/v1/chat/completions", headers=headers, json=payload)  # WildCard
+                response = requests.post(
+                    "https://api.gptsapi.net/v1/chat/completions",
+                    headers=headers,
+                    json=payload,
+                )  # WildCard
             try:
                 if backend == "Claude":
-                    response = response.json()['content'][0]['text']  # antropics
+                    response = response.json()["content"][0]["text"]  # antropics
                 elif backend == "Wildcard":
-                    response = response.json()['choices'][0]['message']['content']
+                    response = response.json()["choices"][0]["message"]["content"]
             except:
                 print(f"$ --- Error Response: {response.json()}\n")
         else:
@@ -86,7 +103,7 @@ class Session:
         self.past_messages.append({"role": "assistant", "content": response})
         self.past_responses.append(response)
 
-    def _create_payload(self, prompt: str, images: list[str]=[]):
+    def _create_payload(self, prompt: str, images: list[str] = []):
         """Creates the payload for the API request."""
         messages = {
             "role": "user",
@@ -103,19 +120,21 @@ class Session:
                 #     "detail": "auto",
                 # }
                 # Claude / WildCard
-                'type': 'image',
-                'source': {
-                    'type': 'base64',
-                    'media_type': 'image/png',
-                    'data': base64_image
-                }
+                "type": "image",
+                "source": {
+                    "type": "base64",
+                    "media_type": "image/png",
+                    "data": base64_image,
+                },
             }
             messages["content"].append(image_content)
-        
-        messages["content"].append({
-            "type": "text",
-            "text": prompt,
-        })
+
+        messages["content"].append(
+            {
+                "type": "text",
+                "text": prompt,
+            }
+        )
 
         self.past_messages.append(messages)
         payload = {
@@ -135,6 +154,6 @@ def encode_image(image_path: str):
         raise ValueError(f"Cannot determine MIME type for {image_path}")
 
     with open(image_path, "rb") as image_file:
-        encoded_string = base64.b64encode(image_file.read()).decode('utf-8')
+        encoded_string = base64.b64encode(image_file.read()).decode("utf-8")
         # return f"data:{mime_type};base64,{encoded_string}"  # ChatGPT
         return encoded_string  # Claude
